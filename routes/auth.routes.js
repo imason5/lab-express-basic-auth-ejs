@@ -7,36 +7,41 @@ const pwdRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*#?&]{8,}$/;
 const bcryptjs = require("bcryptjs");
 const saltRounds = 10;
 
-// GET route ==> to display the signup form to users
+// GET route to display the signup form to users, using the isLoggedOut middleware to ensure the user is not already logged in
 router.get("/signup", isLoggedOut, (req, res, next) => {
   res.render("auth/signup", { errorMessage: null });
 });
 
-// POST route ==> to process form data
+// POST route to process signup form data and create a new user
 router.post("/signup", async (req, res, next) => {
   try {
+    // Check if the username already exists in the database
     const potentialUser = await UserModel.findOne({
       username: req.body.username,
     });
 
     if (!potentialUser) {
+      // Validate password using the regex pattern
       if (pwdRegex.test(req.body.password)) {
+        // Generate salt and hash the password
         const salt = bcryptjs.genSaltSync(saltRounds);
-
-        // This variable holds the encrypted password
         const passwordHash = bcryptjs.hashSync(req.body.password, salt);
 
+        // Create a new user with the hashed password
         const newUser = await UserModel.create({
           username: req.body.username,
           passwordHash,
         });
         console.log(newUser);
 
+        // Redirect to login page after a successful signup
         res.redirect("/login");
       } else {
+        // Render signup form with an error message if the password is invalid
         res.render("auth/signup", { errorMessage: "Invalid password" });
       }
     } else {
+      // Render signup form with an error message if the username already exists
       res.render("auth/signup", { errorMessage: "Username already exists" });
     }
   } catch (err) {
@@ -44,13 +49,12 @@ router.post("/signup", async (req, res, next) => {
   }
 });
 
-// GET route ==> to display the login form to users
+// GET route to display the login form to users
 router.get("/login", isLoggedOut, (req, res, next) => {
   res.render("auth/login", { errorMessage: null });
 });
 
-// POST route ==> to process form data
-
+// POST route to process login form data and authenticate the user
 router.post("/login", async (req, res, next) => {
   const { username, password } = req.body;
 
@@ -62,17 +66,21 @@ router.post("/login", async (req, res, next) => {
   }
 
   try {
+    // Check if the user exists in the database
     const user = await UserModel.findOne({ username });
     if (!user) {
       res.render("auth/login", { errorMessage: "Invalid login credentials." });
       return;
     }
 
+    // Compare the provided password with the stored hashed password
     const passwordCorrect = bcryptjs.compareSync(password, user.passwordHash);
     if (passwordCorrect) {
+      // Set the currentUser in the session and redirect to the main page
       req.session.currentUser = user;
-      res.redirect("/main"); // Add this line to redirect the user after a successful login
+      res.redirect("/main");
     } else {
+      // Render the login form with an error message if the password is incorrect
       res.render("auth/login", { errorMessage: "Invalid login credentials." });
     }
   } catch (error) {
@@ -80,10 +88,12 @@ router.post("/login", async (req, res, next) => {
   }
 });
 
+// GET route to display  main protected page
 router.get("/main", isLoggedIn, (req, res, next) => {
   res.render("protected/main");
 });
 
+// GET route to display  private protected page
 router.get("/private", isLoggedIn, (req, res, next) => {
   res.render("protected/private");
 });
