@@ -3,11 +3,18 @@
   <form action="/signup" method="POST">
     <label>
       Username
-      <input type="text" name="username" placeholder="username" />
+      <input type="text" name="username" placeholder="username" required />
     </label>
     <label>
       Password
-      <input type="password" name="password" placeholder="********" />
+      <input
+        type="password"
+        name="password"
+        placeholder="********"
+        required
+        pattern="^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*#?&]{8,}$"
+        title="Must contain at least 8 characters, including 1 uppercase letter, 1 lowercase letter, and 1 number"
+      />
     </label>
     <button type="submit">Create account</button>
   </form>
