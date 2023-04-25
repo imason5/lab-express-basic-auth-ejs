@@ -1,7 +1,7 @@
 const { Router } = require("express");
 const UserModel = require("../models/User.model");
 const router = new Router();
-
+const pwdRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*#?&]{8,}$/;
 const bcryptjs = require("bcryptjs");
 const saltRounds = 10;
 
@@ -17,18 +17,22 @@ router.post("/signup", async (req, res, next) => {
     });
 
     if (!potentialUser) {
-      const salt = bcryptjs.genSaltSync(saltRounds);
+      if (pwdRegex.test(req.body.password)) {
+        const salt = bcryptjs.genSaltSync(saltRounds);
 
-      // This variable holds the encrypted password
-      const passwordHash = bcryptjs.hashSync(req.body.password, salt);
+        // This variable holds the encrypted password
+        const passwordHash = bcryptjs.hashSync(req.body.password, salt);
 
-      const newUser = await UserModel.create({
-        username: req.body.username,
-        passwordHash,
-      });
-      console.log(newUser);
+        const newUser = await UserModel.create({
+          username: req.body.username,
+          passwordHash,
+        });
+        console.log(newUser);
 
-      res.redirect("/login");
+        res.redirect("/login");
+      } else {
+        res.render("auth/signup", { errorMessage: "Invalid password" });
+      }
     } else {
       res.render("auth/signup", { errorMessage: "Username already exists" });
     }
