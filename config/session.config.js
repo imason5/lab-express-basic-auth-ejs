@@ -31,7 +31,8 @@ module.exports = (app) => {
       store: MongoStore.create({
         // Set the MongoDB connection URL; use an environment variable or default to a local MongoDB instance
         mongoUrl:
-          process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/authIntro",
+          process.env.MONGODB_URI ||
+          "mongodb://127.0.0.1:27017/lab-express-basic-auth",
       }),
     })
   );

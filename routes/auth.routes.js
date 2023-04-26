@@ -98,4 +98,11 @@ router.get("/private", isLoggedIn, (req, res, next) => {
   res.render("protected/private");
 });
 
+// GET route to process logout requests
+router.post("/logout", isLoggedIn, (req, res, next) => {
+  // Destroy the session
+  req.session.destroy();
+  res.redirect("/");
+});
+
 module.exports = router;
