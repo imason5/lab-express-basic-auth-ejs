@@ -1,34 +1,54 @@
-// ℹ️ Gets access to environment variables/settings
-// https://www.npmjs.com/package/dotenv
-require("dotenv/config");
+// Import the dotenv package.
+const dotenv = require("dotenv");
 
-// ℹ️ Connects to the database
-require("./db");
+// Load the environment variables from the .env file.
+dotenv.config();
 
-// Handles http requests (express is node js framework)
-// https://www.npmjs.com/package/express
+// Import the database connection module.
+const db = require("./db");
+
+// Import the Express framework.
 const express = require("express");
 
+// Create an Express app.
 const app = express();
 
-// ℹ️ This function is getting exported from the config folder. It runs most middlewares
-require("./config")(app);
+// Import the config function from the config folder.
+const config = require("./config");
 
-// Add the session configuration middleware
-require("./config/session.config")(app);
+// Call the config function to set up the app.
+config(app);
 
-// default value for title local
+// Import the session configuration middleware.
+const sessionConfig = require("./config/session.config");
+
+// Add the session configuration middleware to the app.
+sessionConfig(app);
+
+// Set the default title for the app.
 const projectName = "lab-express-basic-auth";
 const capitalized = (string) =>
   string[0].toUpperCase() + string.slice(1).toLowerCase();
 
 app.locals.title = `${capitalized(projectName)}- Generated with Ironlauncher`;
 
-// 👇 Start handling routes here
-app.use(require("./routes/index"));
-app.use(require("./routes/auth.routes"));
+// Import the index routes.
+const indexRoutes = require("./routes/index");
 
-// ❗ To handle errors. Routes that don't exist or errors that you handle in specific routes
-require("./error-handling")(app);
+// Add the index routes to the app.
+app.use(indexRoutes);
 
+// Import the auth routes.
+const authRoutes = require("./routes/auth.routes");
+
+// Add the auth routes to the app.
+app.use(authRoutes);
+
+// Import the error handling middleware.
+const errorHandling = require("./error-handling");
+
+// Add the error handling middleware to the app.
+errorHandling(app);
+
+// Export the app.
 module.exports = app;
