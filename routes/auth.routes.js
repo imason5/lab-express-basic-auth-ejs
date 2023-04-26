@@ -99,7 +99,7 @@ router.get("/private", isLoggedIn, (req, res, next) => {
 });
 
 // GET route to process logout requests
-router.post("/logout", isLoggedIn, (req, res, next) => {
+router.get("/logout", isLoggedIn, (req, res, next) => {
   // Destroy the session
   req.session.destroy();
   res.redirect("/");
